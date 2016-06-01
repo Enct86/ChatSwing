@@ -10,6 +10,7 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.Socket;
+import java.net.SocketAddress;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -17,48 +18,69 @@ import java.util.logging.Logger;
  *
  * @author Igor Gayvan
  */
-public class ChatClient implements Runnable {
+public class ChatClient {
 
     private String serverAddress;
     private int serverPort;
-
-    private Socket socketClient;
-    private DataOutputStream dos;
-    private DataInputStream dis;
 
     public ChatClient(String serverAddress, int serverPort) {
         this.serverAddress = serverAddress;
         this.serverPort = serverPort;
 
-        try {
-            socketClient = new Socket();
+    }
+
+    public void sendMessage(String replient, String message) throws IOException {
+
+        try (Socket socketClient = new Socket()) {
+
             socketClient.setSoTimeout(1000);
             System.out.println("Connecting...");
 
             InetSocketAddress isa = new InetSocketAddress(serverAddress, serverPort);
-            socketClient.connect(isa);
+            socketClient.connect(new InetSocketAddress(serverAddress, serverPort));
             System.out.println("Connect establish");
 
-            dos = new DataOutputStream(socketClient.getOutputStream());
-            dis = new DataInputStream(socketClient.getInputStream());
-        } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
-        }
-    }
+            DataOutputStream dos = new DataOutputStream(socketClient.getOutputStream());
+            DataInputStream dis = new DataInputStream(socketClient.getInputStream());
 
-    @Override
-    public void run() {
-        try {
             dos.writeUTF("MSG");
-            dos.writeUTF("127.0.0.1"); ///*String.valueOf(socketClient.getLocalSocketAddress()*/));
-            dos.writeUTF("Hello");
+            dos.flush();
+            dos.writeUTF(replient); ///*String.valueOf(socketClient.getLocalSocketAddress()*/));
+            dos.writeUTF(message);
 
             dos.flush();
-
             String response = dis.readUTF();
-            System.out.println(response);
-        } catch (IOException ex) {
-            Logger.getLogger(ChatClient.class.getName()).log(Level.SEVERE, null, ex);
+            if ("OK".equals(response)) {
+                System.out.println("Message was send");
+            } else {
+                System.out.println("ERROR: While sendeing message");
+            }
+
         }
     }
 }
+
+//    @Override
+//        public void run() {
+//        try {
+//            dos.writeUTF("MSG");
+//            dos.writeUTF("192.168.1.114"); ///*String.valueOf(socketClient.getLocalSocketAddress()*/));
+//            dos.writeUTF("Hello");
+//
+//            dos.flush();
+//
+//            String response = dis.readUTF();
+//            System.out.println(response);
+//
+//        
+//
+//
+//
+//} catch (IOException ex) {
+//            Logger.getLogger(ChatClient.class
+//
+//
+//.getName()).log(Level.SEVERE, null, ex);
+//        }
+//    }
+//}

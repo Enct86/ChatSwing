@@ -7,11 +7,13 @@ package chat;
 
 import chat.client.ChatClient;
 import chat.server.ChatServer;
+import java.io.File;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
 import java.text.SimpleDateFormat;
+
 
 /**
  *
@@ -26,6 +28,12 @@ public class ChatFrame extends javax.swing.JFrame {
     private ChatServer chatServer;
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm");
+    
+    File path = new File("Logs");
+    
+    
+    
+    
 
     /**
      * Creates new form ChatFrame
@@ -43,6 +51,10 @@ public class ChatFrame extends javax.swing.JFrame {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         setLocationRelativeTo(null);
+        
+        if (!path.exists()) {
+            path.mkdir();
+        }
     }
 
     /**
@@ -62,7 +74,8 @@ public class ChatFrame extends javax.swing.JFrame {
         jtaChatMessage = new javax.swing.JTextArea();
         jbSendMessage = new javax.swing.JButton();
         jlStatusMessage = new javax.swing.JLabel();
-        jButton1 = new javax.swing.JButton();
+        jbSave = new javax.swing.JButton();
+        jlSaveLabel = new javax.swing.JLabel();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -94,12 +107,14 @@ public class ChatFrame extends javax.swing.JFrame {
 
         jlStatusMessage.setText(" ");
 
-        jButton1.setText("SAVE");
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        jbSave.setText("SAVE");
+        jbSave.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton1ActionPerformed(evt);
+                jbSaveActionPerformed(evt);
             }
         });
+
+        jlSaveLabel.setText(" ");
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -115,10 +130,12 @@ public class ChatFrame extends javax.swing.JFrame {
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(jtfIPadress, javax.swing.GroupLayout.DEFAULT_SIZE, 506, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                        .addComponent(jlStatusMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                        .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                            .addComponent(jlStatusMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jlSaveLabel, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton1, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(jbSave, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                             .addComponent(jbSendMessage, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))))
                 .addContainerGap())
         );
@@ -138,7 +155,9 @@ public class ChatFrame extends javax.swing.JFrame {
                     .addComponent(jbSendMessage)
                     .addComponent(jlStatusMessage))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jButton1)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jbSave)
+                    .addComponent(jlSaveLabel))
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
 
@@ -158,9 +177,9 @@ public class ChatFrame extends javax.swing.JFrame {
         ChatClient chatClient = new ChatClient(SERVER_ADDRESS, SERVER_PORT);
         try {
             chatClient.sendMessage(recipient, massage);
-            jtaChatHistory.append(recipient + '\n');
-            jtaChatHistory.append(dateFormat.format(date) + '\n');
-            jtaChatHistory.append(massage + '\n');
+            jtaChatHistory.append(recipient + '\n' + dateFormat.format(date) + '\n' + massage + '\n');
+//            jtaChatHistory.append(dateFormat.format(date) + '\n');
+//            jtaChatHistory.append(massage + '\n');
             jtaChatMessage.setText(null);
         } catch (IOException ex) {
             jlStatusMessage.setText(ex.getMessage());
@@ -171,9 +190,21 @@ public class ChatFrame extends javax.swing.JFrame {
         // TODO add your handling code here:
     }//GEN-LAST:event_jbSendMessageFocusGained
 
-    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
-        // TODO add your handling code here:
-    }//GEN-LAST:event_jButton1ActionPerformed
+    private void jbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSaveActionPerformed
+        if (jtaChatHistory.getText().equals("")) {
+            jlSaveLabel.setText("Nothing to Save");
+        }
+        else {
+            File logf = new File(path + File.separator + jtfIPadress.getText() + ".txt");
+            
+            try {
+               logf.createNewFile(); 
+            } catch (Exception e) {
+                jlSaveLabel.setText("Error " + e);
+            }
+
+        }
+    }//GEN-LAST:event_jbSaveActionPerformed
 
     /**
      * @param args the command line arguments
@@ -211,11 +242,12 @@ public class ChatFrame extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
+    private javax.swing.JButton jbSave;
     private javax.swing.JButton jbSendMessage;
+    private javax.swing.JLabel jlSaveLabel;
     private javax.swing.JLabel jlStatusMessage;
     private javax.swing.JTextArea jtaChatHistory;
     private javax.swing.JTextArea jtaChatMessage;
