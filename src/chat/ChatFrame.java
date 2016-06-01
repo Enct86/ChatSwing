@@ -7,13 +7,14 @@ package chat;
 
 import chat.client.ChatClient;
 import chat.server.ChatServer;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.Date;
 import java.text.SimpleDateFormat;
-
 
 /**
  *
@@ -28,12 +29,8 @@ public class ChatFrame extends javax.swing.JFrame {
     private ChatServer chatServer;
     Date date = new Date();
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm");
-    
+
     File path = new File("Logs");
-    
-    
-    
-    
 
     /**
      * Creates new form ChatFrame
@@ -51,7 +48,7 @@ public class ChatFrame extends javax.swing.JFrame {
             Logger.getLogger(Main.class.getName()).log(Level.SEVERE, null, ex);
         }
         setLocationRelativeTo(null);
-        
+
         if (!path.exists()) {
             path.mkdir();
         }
@@ -85,7 +82,7 @@ public class ChatFrame extends javax.swing.JFrame {
         jtaChatHistory.setFocusable(false);
         jScrollPane1.setViewportView(jtaChatHistory);
 
-        jtfIPadress.setText("192.168.1.");
+        jtfIPadress.setText("192.168.21.110");
 
         jLabel1.setText("IP Address:");
 
@@ -193,12 +190,15 @@ public class ChatFrame extends javax.swing.JFrame {
     private void jbSaveActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jbSaveActionPerformed
         if (jtaChatHistory.getText().equals("")) {
             jlSaveLabel.setText("Nothing to Save");
-        }
-        else {
+        } else {
             File logf = new File(path + File.separator + jtfIPadress.getText() + ".txt");
-            
+
             try {
-               logf.createNewFile(); 
+                logf.createNewFile();
+                FileWriter fl = new FileWriter(logf, true);
+                fl.write(jtaChatHistory.getText());
+                fl.flush();
+
             } catch (Exception e) {
                 jlSaveLabel.setText("Error " + e);
             }
