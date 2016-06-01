@@ -9,6 +9,7 @@ import chat.client.ChatClient;
 import chat.server.ChatServer;
 import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.logging.Level;
@@ -31,6 +32,7 @@ public class ChatFrame extends javax.swing.JFrame {
     SimpleDateFormat dateFormat = new SimpleDateFormat("dd.MM.yyyy hh:mm");
 
     File path = new File("Logs");
+    File lastfile = new File(path + File.separator + "last.txt");
 
     /**
      * Creates new form ChatFrame
@@ -52,6 +54,22 @@ public class ChatFrame extends javax.swing.JFrame {
         if (!path.exists()) {
             path.mkdir();
         }
+        if (lastfile.exists()) {
+            try {
+                BufferedReader in = new BufferedReader(new FileReader(lastfile));
+                String addLine;
+                while ((addLine = in.readLine()) != null) {                    
+                    jtaChatHistory.append(addLine); 
+                    jtaChatHistory.append("\n");
+                }
+            } catch (Exception e) {
+                jlSaveLabel.setText("Cant read history file - " + e);
+            }
+
+        } else {
+            jlSaveLabel.setText("No history log file");
+        }
+
     }
 
     /**
@@ -195,9 +213,14 @@ public class ChatFrame extends javax.swing.JFrame {
 
             try {
                 logf.createNewFile();
+                lastfile.createNewFile();
                 FileWriter fl = new FileWriter(logf, true);
+                FileWriter fl2 = new FileWriter(lastfile);
+                fl2.write(jtaChatHistory.getText());
                 fl.write(jtaChatHistory.getText());
                 fl.flush();
+                fl2.flush();
+                jlSaveLabel.setText("Saved");
 
             } catch (Exception e) {
                 jlSaveLabel.setText("Error " + e);
