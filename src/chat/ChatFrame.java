@@ -43,7 +43,6 @@ public class ChatFrame extends javax.swing.JFrame {
         try {
             chatServer = new ChatServer(ClientSERVER_PORT);
             Thread thread = new Thread(chatServer);
-
             thread.start();
 
         } catch (IOException ex) {
@@ -58,8 +57,8 @@ public class ChatFrame extends javax.swing.JFrame {
             try {
                 BufferedReader in = new BufferedReader(new FileReader(lastfile));
                 String addLine;
-                while ((addLine = in.readLine()) != null) {                    
-                    jtaChatHistory.append(addLine); 
+                while ((addLine = in.readLine()) != null) {
+                    jtaChatHistory.append(addLine);
                     jtaChatHistory.append("\n");
                 }
             } catch (Exception e) {
@@ -69,7 +68,12 @@ public class ChatFrame extends javax.swing.JFrame {
         } else {
             jlSaveLabel.setText("No history log file");
         }
-
+//        while (true) {            
+//            if (!chatServer.messageFromServer.equals("")) {
+//                jtaChatMessage.append(chatServer.messageFromServer);
+//                chatServer.messageFromServer = "";
+//            }
+//        }
     }
 
     /**
@@ -94,6 +98,16 @@ public class ChatFrame extends javax.swing.JFrame {
         jbClear = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        addMouseMotionListener(new java.awt.event.MouseMotionAdapter() {
+            public void mouseMoved(java.awt.event.MouseEvent evt) {
+                formMouseMoved(evt);
+            }
+        });
+        addWindowListener(new java.awt.event.WindowAdapter() {
+            public void windowClosing(java.awt.event.WindowEvent evt) {
+                formWindowClosing(evt);
+            }
+        });
 
         jtaChatHistory.setEditable(false);
         jtaChatHistory.setColumns(20);
@@ -151,7 +165,7 @@ public class ChatFrame extends javax.swing.JFrame {
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addComponent(jLabel1)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jtfIPadress, javax.swing.GroupLayout.DEFAULT_SIZE, 512, Short.MAX_VALUE))
+                        .addComponent(jtfIPadress, javax.swing.GroupLayout.DEFAULT_SIZE, 511, Short.MAX_VALUE))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jlStatusMessage, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
@@ -203,7 +217,13 @@ public class ChatFrame extends javax.swing.JFrame {
         ChatClient chatClient = new ChatClient(SERVER_ADDRESS, SERVER_PORT);
         try {
             chatClient.sendMessage(recipient, massage);
-            jtaChatHistory.append(recipient + '\n' + dateFormat.format(date) + '\n' + massage + '\n');
+
+            jtaChatHistory.append(recipient + " - (ME)" + '\n' + dateFormat.format(date) + '\n' + massage + '\n');
+
+            for (int i = 0; i < 135; i++) {
+                jtaChatHistory.append("-");
+            }
+            jtaChatHistory.append("\n");
 //            jtaChatHistory.append(dateFormat.format(date) + '\n');
 //            jtaChatHistory.append(massage + '\n');
             jtaChatMessage.setText(null);
@@ -248,6 +268,25 @@ public class ChatFrame extends javax.swing.JFrame {
         }
     }//GEN-LAST:event_jbClearActionPerformed
 
+    private void formWindowClosing(java.awt.event.WindowEvent evt) {//GEN-FIRST:event_formWindowClosing
+        // TODO add your handling code here:
+    }//GEN-LAST:event_formWindowClosing
+
+    private void formMouseMoved(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_formMouseMoved
+        try {
+
+            if (!chatServer.messageFromServer.equals("")) {
+                jtaChatHistory.append(chatServer.recipientFromServer + '\n' + dateFormat.format(date) + '\n' + chatServer.messageFromServer + '\n');
+                chatServer.messageFromServer = "";
+                for (int i = 0; i < 135; i++) {
+                    jtaChatHistory.append("-");
+                }
+                jtaChatHistory.append("\n");
+            }
+        } catch (Exception e) {
+        }
+    }//GEN-LAST:event_formMouseMoved
+
     /**
      * @param args the command line arguments
      */
@@ -279,6 +318,7 @@ public class ChatFrame extends javax.swing.JFrame {
         java.awt.EventQueue.invokeLater(new Runnable() {
             public void run() {
                 new ChatFrame().setVisible(true);
+
             }
         });
     }
